@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "app/api/brand/generate/route.ts": {
+      "maxDuration": 300
+    }
+  }
+}
