@@ -123,6 +123,14 @@ export default function ProjectForm() {
 
   const currentPage = pages[page];
 
+  // Strip characters that trigger live-DB regex CHECK constraints.
+  // The raw original text is still sent to the LLM via the API body.
+  const sanitizeForDB = (s: string) =>
+    s.replace(/&/g, "and")
+      .replace(/[<>]/g, "")
+      .replace(/"/g, "'")
+      .trim();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (page < pages.length - 1) {
@@ -140,17 +148,18 @@ export default function ProjectForm() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
 
-      // Simple budget_monthly as INTEGER to avoid special character issues
-      const budgetMonthly = parseInt(form.budget_monthly, 10);
+      // budget_monthly as a safe integer string
+      const budgetMonthly = Math.max(0, parseInt(form.budget_monthly, 10) || 0);
 
       const { data: project, error: pErr } = await supabase
         .from("projects")
         .insert({
-          user_id:              user!.id,
-          name:                 form.name,
-          product_idea:         form.product_idea,
-          niche:                form.niche,
-          target_audience:      form.target_audience,
+          user_id:         user!.id,
+          // Sanitize text fields — replaces & < > " that can violate live-DB CHECK constraints
+          name:            sanitizeForDB(form.name),
+          product_idea:    sanitizeForDB(form.product_idea),
+          niche:           sanitizeForDB(form.niche),
+          target_audience: sanitizeForDB(form.target_audience),
         })
         .select()
         .single();
