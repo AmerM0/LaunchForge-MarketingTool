@@ -38,12 +38,6 @@ export async function POST(req: NextRequest) {
     budget_range,
     competitors,
     usp,
-    brand_stage,
-    current_monthly_revenue,
-    current_ad_spend,
-    main_problem,
-    business_model,
-    geographic_market,
   } = body;
 
   if (!projectId || !product_idea || !niche || !target_audience) {
@@ -68,12 +62,7 @@ export async function POST(req: NextRequest) {
       budget_range,
       competitors,
       usp,
-      brand_stage,
-      current_monthly_revenue,
-      current_ad_spend,
-      main_problem,
-      business_model,
-      geographic_market,
+      brand_stage: "new", // Always new brand for simplified form
     });
 
     const generationTimeMs = Date.now() - startTime;
