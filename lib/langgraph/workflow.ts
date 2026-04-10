@@ -25,7 +25,7 @@ async function structuredLLMCall<T>(
 ): Promise<T> {
   const structuredLLM = llm.withStructuredOutput(schema, {
     name: "output",
-    method: "json_mode",
+    method: "functionCalling",  // "json_mode" is not a valid @langchain/anthropic option
   });
 
   for (let attempt = 0; attempt <= retries; attempt++) {

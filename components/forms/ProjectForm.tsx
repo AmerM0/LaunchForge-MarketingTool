@@ -238,9 +238,11 @@ export default function ProjectForm() {
     setError(null);
     setStepIdx(0);
 
+    // Advance one step every ~30s so the 7-step animation spans ~3.5 min,
+    // matching the real API duration. The last step stays until the API resolves.
     const interval = setInterval(() => {
       setStepIdx(prev => Math.min(prev + 1, STEPS.length - 1));
-    }, 22_000);
+    }, 30_000);
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -260,7 +262,7 @@ export default function ProjectForm() {
         .select()
         .single();
 
-      if (pErr) throw pErr;
+      if (pErr) throw new Error(`Failed to save project: ${pErr.message}`);
 
       const res = await fetch("/api/brand/generate", {
         method: "POST",
@@ -295,20 +297,29 @@ export default function ProjectForm() {
 
   if (generating) {
     const step = STEPS[stepIdx];
+    const isFinalizing = stepIdx === STEPS.length - 1;
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-8 py-8">
         <div className="text-center space-y-3">
           <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
             <Loader2 className="w-8 h-8 text-primary animate-spin" />
           </div>
-          <p className="text-xl font-semibold">Agent {stepIdx + 1}/6</p>
+          {isFinalizing ? (
+            <p className="text-xl font-semibold">Compiling Brand Kit…</p>
+          ) : (
+            <p className="text-xl font-semibold">Agent {stepIdx + 1} / 6</p>
+          )}
           <p className="text-muted-foreground text-sm max-w-xs mx-auto">{step.label}…</p>
         </div>
         <div className="w-full max-w-sm space-y-1.5">
           <Progress value={step.pct} className="h-2" />
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>{step.pct}% complete</span>
-            <span>~{Math.max(1, Math.round(((100 - step.pct) / 100) * 2.5))} min left</span>
+            {isFinalizing ? (
+              <span>Almost done…</span>
+            ) : (
+              <span>~{Math.max(1, Math.round(((100 - step.pct) / 100) * 2.5))} min left</span>
+            )}
           </div>
         </div>
         <p className="text-xs text-muted-foreground">⚠️ Don't close this tab</p>
@@ -317,7 +328,7 @@ export default function ProjectForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} noValidate className="space-y-6">
       {/* Page indicator */}
       <div className="flex items-center gap-2">
         {pages.map((_, i) => (

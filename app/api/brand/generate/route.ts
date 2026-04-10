@@ -38,6 +38,12 @@ export async function POST(req: NextRequest) {
     budget_range,
     competitors,
     usp,
+    brand_stage,
+    current_monthly_revenue,
+    current_ad_spend,
+    main_problem,
+    business_model,
+    geographic_market,
   } = body;
 
   if (!projectId || !product_idea || !niche || !target_audience) {
@@ -62,6 +68,12 @@ export async function POST(req: NextRequest) {
       budget_range,
       competitors,
       usp,
+      brand_stage,
+      current_monthly_revenue,
+      current_ad_spend,
+      main_problem,
+      business_model,
+      geographic_market,
     });
 
     const generationTimeMs = Date.now() - startTime;
