@@ -412,7 +412,7 @@ export const LaunchPlanSchema = z.object({
   strategic_context: z.object({
     brand_stage: z.string().describe("New brand or established brand — affects the entire plan"),
     primary_constraint: z.string().describe("The #1 limiting factor right now — usually budget, audience, or product-market fit"),
-    90_day_mission: z.string().describe("One clear mission statement for the next 90 days"),
+    "90_day_mission": z.string().describe("One clear mission statement for the next 90 days"),
     success_definition: z.string().describe("What 'winning' looks like at 90 days — specific and measurable"),
   }),
   pre_launch: z.object({
