@@ -151,14 +151,11 @@ export default function ProjectForm() {
           product_idea:         form.product_idea,
           niche:                form.niche,
           target_audience:      form.target_audience,
-          budget_range:         budgetMonthly.toString(),
-          competitors:          form.competitors ? form.competitors.split(",").map(s => s.trim()) : null,
-          unique_selling_point: form.usp || null,
         })
         .select()
         .single();
 
-      if (pErr) throw new Error(`Supabase error: ${pErr.message}`);
+      if (pErr) throw new Error(`DB insert failed: ${pErr.message} (code: ${pErr.code}, hint: ${pErr.hint})`);
 
       const res = await fetch("/api/brand/generate", {
         method: "POST",
@@ -176,7 +173,7 @@ export default function ProjectForm() {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(`API error: ${data.error ?? "Generation failed"}`);
+      if (!res.ok) throw new Error(data.error ?? "Generation failed");
       router.push(`/brand-kit/${project.id}`);
     } catch (err: any) {
       setError(err.message ?? "Something went wrong. Please try again.");

@@ -19,13 +19,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // 2. Subscription gate
-  const isActive = await checkActiveSubscription(user.id, supabase);
-  if (!isActive) {
-    return NextResponse.json(
-      { error: "Active subscription required", redirect: "/pricing" },
-      { status: 403 }
-    );
+  // 2. Subscription gate (skip in development so you can test locally)
+  if (process.env.NODE_ENV !== "development") {
+    const isActive = await checkActiveSubscription(user.id, supabase);
+    if (!isActive) {
+      return NextResponse.json(
+        { error: "Active subscription required", redirect: "/pricing" },
+        { status: 403 }
+      );
+    }
   }
 
   // 3. Parse request body
@@ -94,7 +96,7 @@ export async function POST(req: NextRequest) {
       .eq("id", projectId);
 
     return NextResponse.json({ brandKit: savedKit }, { status: 200 });
-  } catch (err) {
+  } catch (err: any) {
     console.error("[Generate API] Error:", err);
 
     // Mark project as failed
@@ -103,8 +105,14 @@ export async function POST(req: NextRequest) {
       .update({ status: "failed" })
       .eq("id", projectId);
 
+    // Return the real error message so we can diagnose issues
+    const message =
+      err?.message ??
+      err?.error_description ??
+      (typeof err === "string" ? err : "Generation failed. Please try again.");
+
     return NextResponse.json(
-      { error: "Generation failed. Please try again." },
+      { error: message },
       { status: 500 }
     );
   }
