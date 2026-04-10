@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
+// Next.js 15+/16: params is a Promise
 interface Props {
   params: Promise<{ projectId: string }>;
 }

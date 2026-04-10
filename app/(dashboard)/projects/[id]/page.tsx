@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { ArrowLeft, Sparkles } from "lucide-react";
 
+// Next.js 15+/16: params is a Promise
 interface Props {
   params: Promise<{ id: string }>;
 }

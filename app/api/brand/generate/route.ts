@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
         launch_plan:       brandKit.launch_plan       as any,
         generation_time_ms: generationTimeMs,
         model_version:     "claude-sonnet-4-20250514",
-      })
+      }, { onConflict: "project_id" })
       .select()
       .single();
 

@@ -1,5 +1,10 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
+
+// Duck-typed minimal interface — works with any Supabase client variant
+// (server client, browser client, admin client) regardless of version generics
+interface QueryableClient {
+  from(table: string): any;
+}
 
 /**
  * Returns true only if the user has an active or trialing subscription
@@ -7,7 +12,7 @@ import { redirect } from "next/navigation";
  */
 export async function checkActiveSubscription(
   userId: string,
-  supabase: SupabaseClient<any>
+  supabase: QueryableClient
 ): Promise<boolean> {
   const { data, error } = await supabase
     .from("subscriptions")
@@ -32,7 +37,7 @@ export async function checkActiveSubscription(
  */
 export async function requireActiveSubscription(
   userId: string,
-  supabase: SupabaseClient<any>
+  supabase: QueryableClient
 ): Promise<void> {
   const isActive = await checkActiveSubscription(userId, supabase);
   if (!isActive) redirect("/pricing");

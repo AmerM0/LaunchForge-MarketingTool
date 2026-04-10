@@ -95,7 +95,7 @@ export default function BrandKitDisplay({ brandKit }: BrandKitDisplayProps) {
             </ul>
           </Section>
         </div>
-        <Section title="Target Persona — {m?.target_persona?.name}">
+        <Section title={`Target Persona — ${m?.target_persona?.name ?? ""}`}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <p className="text-xs font-medium text-muted-foreground uppercase mb-2">Psychographics</p>
