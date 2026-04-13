@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2, Sparkles, ArrowRight, Zap, Building2 } from "lucide-react";
 import { PLANS } from "@/lib/stripe/client";
 import type { User } from "@supabase/supabase-js";
 
@@ -13,13 +11,19 @@ interface PricingCardsProps {
   user: User | null;
 }
 
+const PLAN_ICONS = {
+  starter: Zap,
+  pro:     Sparkles,
+  agency:  Building2,
+} as const;
+
 export default function PricingCards({ plans, user }: PricingCardsProps) {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleCheckout = async (priceId: string, planKey: string) => {
     if (!user) {
-      router.push(`/signup`);
+      router.push("/signup");
       return;
     }
     setLoading(planKey);
@@ -43,63 +47,94 @@ export default function PricingCards({ plans, user }: PricingCardsProps) {
   const entries = Object.entries(plans) as [keyof typeof PLANS, typeof plans[keyof typeof PLANS]][];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-7">
       {entries.map(([key, plan]) => {
-        const isPro      = key === "pro";
-        const isLoading  = loading === key;
+        const isPro     = key === "pro";
+        const isLoading = loading === key;
+        const PlanIcon  = PLAN_ICONS[key] ?? Sparkles;
 
         return (
           <div
             key={key}
-            className={`relative flex flex-col rounded-2xl border p-7 ${
+            className={`relative flex flex-col rounded-2xl p-7 ${
               isPro
-                ? "border-primary shadow-xl shadow-primary/10 bg-primary/[0.02]"
-                : "bg-card"
+                ? "card-glow-border glow-purple"
+                : "glass-card"
             }`}
           >
+            {/* Popular badge */}
             {isPro && (
-              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 px-4">
-                Most Popular
-              </Badge>
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg shadow-violet-500/30">
+                  <Sparkles className="w-3 h-3" />
+                  Most Popular
+                </span>
+              </div>
             )}
 
+            {/* Plan icon + name */}
+            <div className="flex items-center gap-3 mb-5">
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                isPro
+                  ? "bg-gradient-to-br from-violet-500/30 to-indigo-500/20 border border-violet-500/30"
+                  : "bg-white/5 border border-white/10"
+              }`}>
+                <PlanIcon className={`w-4 h-4 ${isPro ? "text-violet-300" : "text-muted-foreground"}`} />
+              </div>
+              <div>
+                <h3 className="font-bold text-base">{plan.name}</h3>
+                <p className="text-xs text-muted-foreground">{plan.description}</p>
+              </div>
+            </div>
+
+            {/* Price */}
             <div className="mb-6">
-              <h3 className="text-xl font-bold">{plan.name}</h3>
-              <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
+              <div className="flex items-baseline gap-1">
+                <span className={`text-4xl font-black ${isPro ? "gradient-text-purple" : ""}`}>
+                  {plan.price}
+                </span>
+                <span className="text-muted-foreground text-sm">/month</span>
+              </div>
             </div>
 
-            <div className="mb-6 flex items-baseline gap-1">
-              <span className="text-4xl font-bold">{plan.price}</span>
-              <span className="text-muted-foreground text-sm">/month</span>
-            </div>
-
-            <ul className="flex-1 space-y-3 mb-8">
+            {/* Features */}
+            <ul className="flex-1 space-y-2.5 mb-7">
               {plan.features.map((f) => (
-                <li key={f} className="flex items-start gap-2 text-sm">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
-                  {f}
+                <li key={f} className="flex items-start gap-2.5 text-sm">
+                  <CheckCircle2
+                    className={`w-4 h-4 shrink-0 mt-0.5 ${
+                      isPro ? "text-violet-400" : "text-emerald-500"
+                    }`}
+                  />
+                  <span className={isPro ? "text-foreground/90" : "text-muted-foreground"}>{f}</span>
                 </li>
               ))}
             </ul>
 
-            <Button
-              size="lg"
-              className="w-full"
-              variant={isPro ? "default" : "outline"}
+            {/* CTA */}
+            <button
               disabled={isLoading}
               onClick={() => handleCheckout(plan.priceId, key)}
+              className={`w-full inline-flex items-center justify-center gap-2 font-semibold rounded-xl px-6 py-3 text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed ${
+                isPro
+                  ? "btn-gradient text-white"
+                  : "bg-white/5 border border-white/10 text-foreground hover:bg-white/10 hover:border-white/20"
+              }`}
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Redirecting...
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Redirecting…
                 </>
               ) : (
-                "Start 7-Day Free Trial"
+                <>
+                  Start 7-Day Free Trial
+                  {isPro && <ArrowRight className="w-4 h-4" />}
+                </>
               )}
-            </Button>
-            <p className="text-xs text-center text-muted-foreground mt-2">
-              No credit card required to start
+            </button>
+            <p className="text-xs text-center text-muted-foreground/60 mt-2.5">
+              No credit card required
             </p>
           </div>
         );
