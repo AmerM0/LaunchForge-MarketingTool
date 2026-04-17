@@ -14,7 +14,7 @@ import {
 const llm = new ChatAnthropic({
   model: "claude-sonnet-4-20250514",
   temperature: 0.6,
-  maxTokens: 8000,
+  maxTokens: 16000,
 });
 
 async function structuredLLMCall<T>(

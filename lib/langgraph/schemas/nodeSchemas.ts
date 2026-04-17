@@ -1,10 +1,12 @@
 import { z } from "zod";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DESIGN RULE: NO z.string().min() / z.string().max() anywhere in this file.
-// Those constraints get forwarded to Claude's tool schema validator and cause
-// "The string did not match the expected pattern." failures.
-// Quality is enforced through system-prompt instructions, not Zod length guards.
+// DESIGN RULE: ZERO .min() / .max() on ANY type (string, array, number).
+// These generate minLength/maxLength/minItems/maxItems/minimum/maximum in the
+// JSON Schema forwarded to Anthropic's tool validator. When the LLM output
+// doesn't satisfy these constraints, Anthropic returns:
+//   "The string did not match the expected pattern."
+// Quality is enforced through system-prompt instructions, NOT Zod guards.
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ─── Node 1: Market Intelligence Analyst ─────────────────────────────────────
@@ -31,14 +33,14 @@ export const MarketAnalysisSchema = z.object({
     trend: z.string(),
     implication: z.string().describe("Specific action this trend enables for the brand"),
     time_horizon: z.string().describe("e.g. 12-18 months before mainstream"),
-  })).min(3).max(5),
+  })),
 
   pain_points: z.array(z.object({
     pain: z.string(),
     intensity: z.enum(["low", "medium", "high", "critical"]),
     current_workaround: z.string().describe("What people do today to solve this"),
     emotional_language: z.string().describe("Exact words customers use in reviews and forums"),
-  })).min(3).max(6),
+  })),
 
   competitor_landscape: z.array(z.object({
     name: z.string(),
@@ -48,21 +50,21 @@ export const MarketAnalysisSchema = z.object({
     core_weakness: z.string(),
     exploitable_gap: z.string().describe("Specific angle to win customers away from them"),
     messaging_angle: z.string().describe("Their primary marketing message"),
-  })).min(3).max(5),
+  })),
 
   target_personas: z.array(z.object({
     segment_name: z.string(),
     age_range: z.string(),
     income_range: z.string(),
-    psychographics: z.array(z.string()).min(3),
-    daily_frustrations: z.array(z.string()).min(3),
-    buying_triggers: z.array(z.string()).min(3),
-    objections: z.array(z.string()).min(3),
-    where_they_spend_time: z.array(z.string()).min(3),
+    psychographics: z.array(z.string()),
+    daily_frustrations: z.array(z.string()),
+    buying_triggers: z.array(z.string()),
+    objections: z.array(z.string()),
+    where_they_spend_time: z.array(z.string()),
     dream_outcome: z.string().describe("The transformation they are actually buying"),
-  })).min(1).max(2),
+  })),
 
-  market_readiness_score: z.number().min(1).max(10),
+  market_readiness_score: z.number(),
   market_readiness_reasoning: z.string(),
 });
 
@@ -76,7 +78,7 @@ export const PositioningSchema = z.object({
     domain_available_likely: z.boolean(),
     rationale: z.string(),
     trademark_risk: z.enum(["low", "medium", "high"]),
-  })).min(3).max(5),
+  })),
 
   positioning_statement: z.string().describe("Full 'For [audience] who [problem], [brand] is the [category] that [benefit], unlike [alternative]' format"),
   value_proposition: z.string().describe("Core value prop in 1-2 sentences"),
@@ -87,14 +89,14 @@ export const PositioningSchema = z.object({
     archetype_application: z.string().describe("How this archetype shows up in copy, imagery, and customer experience"),
   }),
 
-  tone_of_voice: z.array(z.string()).min(3).max(5),
+  tone_of_voice: z.array(z.string()),
 
   tone_examples: z.object({
-    do_say: z.array(z.string()).min(3),
-    dont_say: z.array(z.string()).min(3),
+    do_say: z.array(z.string()),
+    dont_say: z.array(z.string()),
   }),
 
-  brand_personality_traits: z.array(z.string()).min(3),
+  brand_personality_traits: z.array(z.string()),
 
   visual_identity: z.object({
     color_palette: z.object({
@@ -105,13 +107,13 @@ export const PositioningSchema = z.object({
     }),
     typography_direction: z.string(),
     imagery_style: z.string(),
-    design_references: z.array(z.string()).min(3),
+    design_references: z.array(z.string()),
   }),
 
   tagline_options: z.array(z.object({
     tagline: z.string(),
     use_case: z.string().describe("Where this works best: ads, homepage, packaging"),
-  })).min(3).max(5),
+  })),
 
   differentiation_strategy: z.string().describe("Why this brand wins — specific, named competitor comparison"),
 
@@ -119,7 +121,7 @@ export const PositioningSchema = z.object({
     competitor: z.string(),
     their_claim: z.string(),
     your_counter: z.string(),
-  })).min(2).max(4),
+  })),
 });
 
 // ─── Node 3: Offer and Revenue Architect ─────────────────────────────────────
@@ -142,7 +144,7 @@ export const OfferSchema = z.object({
       perceived_value: z.string(),
       actual_cost: z.string(),
       why_it_increases_conversion: z.string(),
-    })).min(2).max(4),
+    })),
     total_stack_value: z.string(),
     price_to_value_ratio: z.string().describe("e.g. $497 for $3,200 worth of value"),
   }),
@@ -154,7 +156,7 @@ export const OfferSchema = z.object({
     conversion_hook: z.string(),
     expected_take_rate: z.string(),
     revenue_impact: z.string(),
-  })).min(2).max(3),
+  })),
 
   downsell: z.object({
     name: z.string(),
@@ -174,15 +176,15 @@ export const OfferSchema = z.object({
     tier_name: z.string(),
     price: z.string(),
     ideal_for: z.string(),
-    features: z.array(z.string()).min(3),
+    features: z.array(z.string()),
     most_popular: z.boolean(),
-  })).min(2).max(3),
+  })),
 
   revenue_model: z.object({
     model_type: z.enum(["one-time", "subscription", "hybrid", "retainer", "productized-service"]),
     monthly_recurring_potential: z.string(),
-    churn_risk_factors: z.array(z.string()).min(2),
-    retention_mechanisms: z.array(z.string()).min(2),
+    churn_risk_factors: z.array(z.string()),
+    retention_mechanisms: z.array(z.string()),
   }),
 });
 
@@ -208,7 +210,7 @@ export const CopySchema = z.object({
     headline: z.string(),
     formula: z.string().describe("e.g. PAS, How-To, Number, Question, Shock"),
     best_for: z.string().describe("e.g. cold traffic Meta ad, warm retargeting, email subject"),
-  })).min(5).max(8),
+  })),
 
   email_sequences: z.object({
     welcome_series: z.array(z.object({
@@ -218,58 +220,58 @@ export const CopySchema = z.object({
       preview_text: z.string(),
       email_goal: z.string(),
       body_outline: z.string().describe("Full narrative outline with key points, story arc, and CTA"),
-    })).min(4),
+    })),
     abandoned_cart: z.array(z.object({
       email_number: z.number(),
       delay: z.string(),
       subject_line: z.string(),
       hook: z.string(),
       cta: z.string(),
-    })).min(3),
+    })),
     post_purchase: z.array(z.object({
       email_number: z.number(),
       timing: z.string(),
       goal: z.string(),
       subject_line: z.string(),
       key_message: z.string(),
-    })).min(3),
+    })),
   }),
 
   product_page_copy: z.object({
     above_fold: z.string().describe("Full above-fold section: H1, H2, bullet benefits, CTA, proof"),
     product_description: z.string().describe("Full product description with mechanism and benefits"),
-    bullet_benefits: z.array(z.string()).min(5).describe("Feature to benefit to emotional payoff format"),
+    bullet_benefits: z.array(z.string()).describe("Feature to benefit to emotional payoff format"),
     objection_busters: z.array(z.object({
       objection: z.string(),
       response: z.string(),
-    })).min(4),
+    })),
     faq_section: z.array(z.object({
       question: z.string(),
       answer: z.string(),
-    })).min(5),
+    })),
   }),
 
   ad_copy_bank: z.object({
-    short_hooks: z.array(z.string()).min(6).describe("1-2 line hooks for Reels, TikTok, and Meta ad first 3 seconds"),
+    short_hooks: z.array(z.string()).describe("1-2 line hooks for Reels, TikTok, and Meta ad first 3 seconds"),
     ugc_scripts: z.array(z.object({
       hook: z.string(),
       body: z.string(),
       cta: z.string(),
       duration_seconds: z.number(),
-    })).min(3),
+    })),
     static_ad_copy: z.array(z.object({
       primary_text: z.string(),
       headline: z.string(),
       description: z.string(),
       format: z.string(),
-    })).min(3),
+    })),
   }),
 
   urgency_and_scarcity: z.array(z.object({
     type: z.enum(["deadline", "quantity", "bonus-expiry", "social-proof", "price-increase"]),
     copy: z.string(),
     ethical_note: z.string(),
-  })).min(3),
+  })),
 });
 
 // ─── Node 5: Performance Media Buyer and Ad Strategist ───────────────────────
@@ -304,9 +306,9 @@ export const AdStrategySchema = z.object({
         placements: z.string(),
         ads_per_adset: z.number(),
         kpi_to_declare_winner: z.string(),
-      })).min(3),
+      })),
       creative_testing: z.object({
-        variables_to_test: z.array(z.string()).min(3),
+        variables_to_test: z.array(z.string()),
         winning_criteria: z.string(),
         budget_per_creative: z.string(),
         kill_criteria: z.string(),
@@ -316,10 +318,10 @@ export const AdStrategySchema = z.object({
       horizontal_scaling: z.string(),
       vertical_scaling: z.string(),
       cbo_structure: z.string(),
-      lookalike_ladder: z.array(z.string()).min(3),
+      lookalike_ladder: z.array(z.string()),
       retargeting_structure: z.object({
         window_days: z.number(),
-        audience_segments: z.array(z.string()).min(3),
+        audience_segments: z.array(z.string()),
         budget_pct_of_total: z.string(),
         messaging_angle: z.string(),
       }),
@@ -332,7 +334,7 @@ export const AdStrategySchema = z.object({
       production_notes: z.string(),
       expected_ctr_range: z.string(),
       best_placement: z.string(),
-    })).min(4),
+    })),
     kpis_and_benchmarks: z.object({
       cpm_benchmark: z.string(),
       ctr_benchmark: z.string(),
@@ -352,21 +354,21 @@ export const AdStrategySchema = z.object({
       priority: z.enum(["primary", "secondary", "optional"]),
       rationale: z.string(),
       estimated_budget_pct: z.string(),
-    })).min(2),
+    })),
     search_campaigns: z.object({
       keyword_strategy: z.string(),
       match_type_approach: z.string(),
       keyword_clusters: z.array(z.object({
         cluster_name: z.string(),
         intent: z.enum(["informational", "commercial", "transactional", "navigational"]),
-        example_keywords: z.array(z.string()).min(4),
+        example_keywords: z.array(z.string()),
         bid_strategy: z.string(),
-      })).min(2),
-      negative_keywords: z.array(z.string()).min(8),
+      })),
+      negative_keywords: z.array(z.string()),
     }),
     shopping_pmax: z.object({
-      feed_optimization_priorities: z.array(z.string()).min(4),
-      audience_signals: z.array(z.string()).min(3),
+      feed_optimization_priorities: z.array(z.string()),
+      audience_signals: z.array(z.string()),
       asset_group_structure: z.string(),
     }),
   }),
@@ -378,7 +380,7 @@ export const AdStrategySchema = z.object({
       hook_style: z.string(),
       optimal_length: z.string(),
       posting_time: z.string(),
-    })).min(3),
+    })),
     spark_ads_strategy: z.string(),
     ugc_acquisition: z.string(),
   }),
@@ -389,8 +391,8 @@ export const AdStrategySchema = z.object({
       flow_name: z.string(),
       trigger: z.string(),
       revenue_impact: z.string(),
-      key_emails: z.array(z.string()).min(3),
-    })).min(3),
+      key_emails: z.array(z.string()),
+    })),
     sms_strategy: z.string(),
   }),
 
@@ -401,13 +403,13 @@ export const AdStrategySchema = z.object({
       amount: z.string(),
       pct_of_budget: z.string(),
       rationale: z.string(),
-    })).min(3),
+    })),
     month1_focus: z.string(),
     scaling_milestones: z.array(z.object({
       milestone: z.string(),
       action: z.string(),
       budget_change: z.string(),
-    })).min(3),
+    })),
   }),
 });
 
@@ -430,22 +432,22 @@ export const LaunchPlanSchema = z.object({
         owner: z.string().describe("Founder, VA, Agency, or Developer"),
         time_required: z.string(),
         tool_or_resource: z.string(),
-      })).min(3),
+      })),
       checkpoint: z.string(),
       if_behind: z.string(),
-    })).min(3),
+    })),
     validation_gates: z.array(z.object({
       gate_name: z.string(),
       test: z.string(),
       pass_criteria: z.string(),
       fail_action: z.string(),
-    })).min(3),
+    })),
     tech_stack_checklist: z.array(z.object({
       tool: z.string(),
       purpose: z.string(),
       cost: z.string(),
       priority: z.enum(["must-have", "nice-to-have", "later"]),
-    })).min(6),
+    })),
   }),
 
   launch_execution: z.object({
@@ -454,17 +456,17 @@ export const LaunchPlanSchema = z.object({
     day_by_day: z.array(z.object({
       day: z.number(),
       theme: z.string(),
-      morning_tasks: z.array(z.string()).min(2),
-      afternoon_tasks: z.array(z.string()).min(2),
+      morning_tasks: z.array(z.string()),
+      afternoon_tasks: z.array(z.string()),
       metric_to_check: z.string(),
       end_of_day_decision: z.string(),
-    })).min(7),
+    })),
     launch_email_sequence: z.array(z.object({
       day: z.number(),
       subject: z.string(),
       goal: z.string(),
       key_message: z.string(),
-    })).min(5),
+    })),
     day1_revenue_target: z.string(),
     week1_revenue_target: z.string(),
   }),
@@ -472,13 +474,13 @@ export const LaunchPlanSchema = z.object({
   post_launch_optimization: z.object({
     week2_to_4: z.object({
       primary_focus: z.string(),
-      daily_review_checklist: z.array(z.string()).min(4),
+      daily_review_checklist: z.array(z.string()),
       optimization_experiments: z.array(z.object({
         experiment: z.string(),
         hypothesis: z.string(),
         how_to_test: z.string(),
         success_metric: z.string(),
-      })).min(3),
+      })),
     }),
     month2_to_3: z.object({
       growth_levers: z.array(z.object({
@@ -486,11 +488,11 @@ export const LaunchPlanSchema = z.object({
         expected_impact: z.string(),
         effort: z.enum(["low", "medium", "high"]),
         how_to_activate: z.string(),
-      })).min(4),
+      })),
       team_hire_triggers: z.array(z.object({
         role: z.string(),
         hire_when: z.string(),
-      })).min(2),
+      })),
     }),
   }),
 
@@ -500,16 +502,16 @@ export const LaunchPlanSchema = z.object({
       target: z.string(),
       data_source: z.string(),
       action_if_below: z.string(),
-    })).min(4),
+    })),
     weekly_metrics: z.array(z.object({
       metric: z.string(),
       target: z.string(),
       review_question: z.string(),
-    })).min(3),
+    })),
     monthly_metrics: z.array(z.object({
       metric: z.string(),
       target: z.string(),
-    })).min(3),
+    })),
   }),
 
   financial_model: z.object({
@@ -521,7 +523,7 @@ export const LaunchPlanSchema = z.object({
       ad_spend: z.string(),
       net_profit: z.string(),
       assumptions: z.string(),
-    })).min(9),
+    })),
     unit_economics: z.object({
       cac_target: z.string(),
       ltv_target: z.string(),
@@ -535,10 +537,10 @@ export const LaunchPlanSchema = z.object({
 
   contingency_playbook: z.array(z.object({
     scenario: z.string(),
-    diagnosis_steps: z.array(z.string()).min(2),
-    corrective_actions: z.array(z.string()).min(2),
+    diagnosis_steps: z.array(z.string()),
+    corrective_actions: z.array(z.string()),
     timeline: z.string(),
-  })).min(4),
+  })),
 });
 
 // ─── Inferred types ───────────────────────────────────────────────────────────
