@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Loader2, Sparkles, ArrowRight, Zap, Building2 } from "lucide-react";
+import { CheckCircle2, Loader2, Sparkles, ArrowRight, Zap, Building2, Shield } from "lucide-react";
 import { PLANS } from "@/lib/stripe/client";
 import type { User } from "@supabase/supabase-js";
 
@@ -128,13 +128,16 @@ export default function PricingCards({ plans, user }: PricingCardsProps) {
                 </>
               ) : (
                 <>
-                  Start 7-Day Free Trial
+                  Get Started
                   {isPro && <ArrowRight className="w-4 h-4" />}
                 </>
               )}
             </button>
-            <p className="text-xs text-center text-muted-foreground/60 mt-2.5">
-              No credit card required
+
+            {/* Money-back guarantee note */}
+            <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground/70 mt-2.5">
+              <Shield className="w-3 h-3" />
+              30-day money-back guarantee
             </p>
           </div>
         );

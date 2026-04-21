@@ -2,10 +2,10 @@ import { createServerClient } from "@/lib/supabase/server";
 import PricingCards from "@/components/pricing/PricingCards";
 import { PLANS } from "@/lib/stripe/client";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowLeft, Shield, Sparkles, CheckCircle2 } from "lucide-react";
 
 const TRUST_ITEMS = [
-  "7-day free trial",
+  "30-day money-back guarantee",
   "Cancel anytime",
   "No hidden fees",
   "Instant access",
@@ -66,19 +66,27 @@ export default async function PricingPage() {
         {/* Pricing cards */}
         <PricingCards plans={PLANS} user={user} />
 
-        {/* FAQ / comparison note */}
+        {/* Value framing */}
         <div className="mt-16 text-center glass-card rounded-2xl p-8 max-w-2xl mx-auto">
           <p className="text-sm font-semibold text-foreground mb-2">
             A strategy firm would charge $15,000–$50,000 for this.
           </p>
           <p className="text-sm text-muted-foreground">
             AI Brand Architect gives you the same caliber output — market sizing, ICP, brand
-            positioning, offer architecture, ad creatives, and launch plan — in under 4 minutes,
-            for a fraction of the cost.
+            positioning, offer architecture, ad creatives, and a 90-day launch plan — in under
+            4 minutes, for a fraction of the cost.
           </p>
         </div>
 
-        <p className="text-center text-sm text-muted-foreground mt-10">
+        {/* Money-back guarantee callout */}
+        <div className="mt-6 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <Shield className="w-4 h-4 text-emerald-500 shrink-0" />
+          <span>
+            Not satisfied? Email us within 30 days for a full refund — no questions asked.
+          </span>
+        </div>
+
+        <p className="text-center text-sm text-muted-foreground mt-8">
           Questions?{" "}
           <a href="mailto:support@yourdomain.com" className="text-violet-400 hover:text-violet-300 transition-colors">
             Contact us

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient, createAdminClient } from "@/lib/supabase/server";
 import { runBrandArchitectWorkflow } from "@/lib/langgraph/workflow";
-import { checkActiveSubscription } from "@/lib/stripe/subscriptionCheck";
+import { checkActiveSubscription, checkMonthlyKitUsage } from "@/lib/stripe/subscriptionCheck";
 
 export const maxDuration = 300; // 5 min — requires Vercel Pro plan
 export const runtime = "nodejs";
@@ -22,6 +22,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Admin client used for all DB ops after auth (bypasses RLS + survives JWT expiry)
+    const admin = createAdminClient();
+
     // ── STEP 2: Subscription gate (skip in dev) ───────────────────────────────
     step = "subscription-check";
     if (process.env.NODE_ENV !== "development") {
@@ -30,6 +33,21 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(
           { error: "Active subscription required", redirect: "/pricing" },
           { status: 403 }
+        );
+      }
+    }
+
+    // ── STEP 2b: Monthly kit usage limit (Starter = 5/month) ─────────────────
+    step = "usage-check";
+    if (process.env.NODE_ENV !== "development") {
+      const { allowed, limit, planKey } = await checkMonthlyKitUsage(user.id, admin);
+      if (!allowed) {
+        return NextResponse.json(
+          {
+            error: `You've used all ${limit} brand kits included in your ${planKey ?? "current"} plan this month. Upgrade to Pro for unlimited brand kits.`,
+            redirect: "/pricing",
+          },
+          { status: 429 }
         );
       }
     }
@@ -53,8 +71,6 @@ export async function POST(req: NextRequest) {
 
     // ── STEP 4: Mark project as generating (non-blocking) ─────────────────────
     step = "mark-generating";
-    // Use admin client to bypass RLS + avoid session-expiry issues during long workflow
-    const admin = createAdminClient();
     await admin
       .from("projects")
       .update({ status: "generating" })

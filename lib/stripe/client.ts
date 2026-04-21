@@ -6,52 +6,62 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 /**
  * Pricing plans config.
- * Update the priceId values with your real Stripe Price IDs after
- * creating products in the Stripe Dashboard.
+ * ─────────────────────────────────────────────────────────────────────────────
+ * FEATURE POLICY: Only list features that are actually built and functional.
+ * Misleading feature copy causes chargebacks and destroys trust.
+ * ─────────────────────────────────────────────────────────────────────────────
  */
 export const PLANS = {
   starter: {
-    name: "Starter",
-    price: "$49",
-    priceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID!,
-    description: "Perfect for solo founders and first-time brand builders.",
+    name:        "Starter",
+    price:       "$69.99",
+    priceId:     process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID!,
+    description: "For solo founders testing a new brand or product idea.",
+    monthlyKitLimit: 5,          // enforced server-side in generate route
     features: [
       "5 brand kits per month",
-      "All 6 AI agent nodes",
-      "Market analysis + positioning",
-      "Ad strategy + launch plan",
-      "PDF export",
+      "All 6 AI specialist agents",
+      "Market analysis & competitor deep-dive",
+      "Brand positioning & identity system",
+      "Offer architecture & revenue model",
+      "Ad strategy & media buying playbook",
+      "90-day growth & launch plan",
       "Email support",
     ],
   },
   pro: {
-    name: "Pro",
-    price: "$99",
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID!,
-    description: "For serious ecommerce brands scaling fast.",
+    name:        "Pro",
+    price:       "$119.99",
+    priceId:     process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID!,
+    description: "For serious ecommerce brands iterating fast.",
+    monthlyKitLimit: Infinity,   // unlimited
     features: [
       "Unlimited brand kits",
-      "All 6 AI agent nodes",
-      "Priority generation queue",
-      "PDF + Notion export",
-      "Team collaboration (3 seats)",
-      "Priority support",
-      "Custom brand templates",
+      "All 6 AI specialist agents",
+      "Market analysis & competitor deep-dive",
+      "Brand positioning & identity system",
+      "Offer architecture & revenue model",
+      "Ad strategy & media buying playbook",
+      "90-day growth & launch plan",
+      "Priority email support",
     ],
   },
   agency: {
-    name: "Agency",
-    price: "$249",
-    priceId: process.env.NEXT_PUBLIC_STRIPE_AGENCY_PRICE_ID!,
-    description: "For agencies managing multiple client brands.",
+    name:        "Agency",
+    price:       "$279.99",
+    priceId:     process.env.NEXT_PUBLIC_STRIPE_AGENCY_PRICE_ID!,
+    description: "For agencies building brand strategies for multiple clients.",
+    monthlyKitLimit: Infinity,   // unlimited
     features: [
       "Unlimited brand kits",
-      "White-label reports",
-      "API access",
-      "Unlimited team seats",
-      "Dedicated account manager",
-      "Custom AI fine-tuning",
-      "SLA + uptime guarantee",
+      "All 6 AI specialist agents",
+      "Market analysis & competitor deep-dive",
+      "Brand positioning & identity system",
+      "Offer architecture & revenue model",
+      "Ad strategy & media buying playbook",
+      "90-day growth & launch plan",
+      "1-on-1 onboarding strategy call",
+      "Priority email & chat support",
     ],
   },
 } as const;
