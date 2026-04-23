@@ -16,9 +16,10 @@ import {
 // 10 000 output tokens gives each agent room to produce genuinely deep work.
 // ─────────────────────────────────────────────────────────────────────────────
 const llm = new ChatAnthropic({
-  model:     "claude-sonnet-4-6",
+  model:       "claude-sonnet-4-6",
   temperature: 0.5,
-  maxTokens:  10_000,
+  maxTokens:   10_000,
+  topP:        1,
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
