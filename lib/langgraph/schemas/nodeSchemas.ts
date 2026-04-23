@@ -556,6 +556,7 @@ export interface BrandKitState {
   product_idea:             string;
   niche:                    string;
   target_audience:          string;
+  market_country?:          string;   // e.g. "United States", "United Kingdom", "UAE"
   budget_range?:            string;
   competitors?:             string[];
   usp?:                     string;
@@ -564,7 +565,7 @@ export interface BrandKitState {
   current_ad_spend?:        string;
   main_problem?:            string;
   business_model?:          string;
-  geographic_market?:       string;
+  geographic_market?:       string;   // kept for legacy compat — prefer market_country
 
   // ── Outputs
   market_analysis?: MarketAnalysis;
