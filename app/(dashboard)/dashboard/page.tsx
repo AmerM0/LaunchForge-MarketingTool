@@ -150,9 +150,9 @@ export default async function DashboardPage() {
                   ) : (
                     <Link
                       href={`/projects/${project.id}`}
-                      className="w-full inline-flex items-center justify-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-1"
+                      className="w-full inline-flex items-center justify-center gap-1.5 text-sm font-medium text-violet-400 hover:text-violet-300 transition-colors py-1"
                     >
-                      View Project
+                      Generate Brand Kit
                       <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                   )}

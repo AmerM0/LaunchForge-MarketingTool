@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { ArrowLeft, Sparkles } from "lucide-react";
+import RegenerateButton from "@/components/brand/RegenerateButton";
 
 // Next.js 15+/16: params is a Promise
 interface Props {
@@ -69,12 +70,22 @@ export default async function ProjectDetailPage({ params }: Props) {
         </Button>
       )}
 
-      {project.status === "failed" && (
-        <div className="text-center space-y-3 py-4">
-          <p className="text-sm text-muted-foreground">Generation failed. You can try again from the dashboard.</p>
-          <Button asChild variant="outline">
-            <Link href="/projects/new">Try New Project</Link>
-          </Button>
+      {(project.status === "draft" || project.status === "failed") && (
+        <div className="space-y-3">
+          {project.status === "failed" && (
+            <p className="text-sm text-muted-foreground text-center">
+              Generation failed — your details are saved. Click below to try again.
+            </p>
+          )}
+          <RegenerateButton project={{
+            id:                   project.id,
+            product_idea:         project.product_idea,
+            niche:                project.niche,
+            target_audience:      project.target_audience,
+            budget_range:         project.budget_range,
+            competitors:          project.competitors,
+            unique_selling_point: project.unique_selling_point,
+          }} />
         </div>
       )}
     </div>
