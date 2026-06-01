@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Plus, FolderOpen, Sparkles } from "lucide-react";
+import { LayoutDashboard, Plus, FolderOpen, Sparkles, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/dashboard",    label: "Dashboard",     icon: LayoutDashboard },
   { href: "/projects/new", label: "New Brand Kit",  icon: Plus },
   { href: "/projects",     label: "All Projects",   icon: FolderOpen },
+  { href: "/leads",        label: "Lead Finder",    icon: Users },
 ];
 
 export default function Sidebar() {

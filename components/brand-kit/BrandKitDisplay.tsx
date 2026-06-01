@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { VisualGenerator } from "@/components/brand-kit/VisualGenerator";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SCHEMA NORMALIZERS
@@ -413,6 +414,9 @@ interface BrandKitDisplayProps {
     ad_strategy: any;
     launch_plan: any;
     generation_time_ms?: number | null;
+    /** Original project inputs — used to pre-populate Visual Studio */
+    product_idea?: string;
+    niche?: string;
   };
 }
 
@@ -423,6 +427,7 @@ const TABS = [
   { id: "copy",        label: "✍️ Copy",          title: "Conversion Copy" },
   { id: "ads",         label: "📢 Ads",          title: "Ad Strategy" },
   { id: "launch",      label: "🚀 Launch",       title: "Launch Plan" },
+  { id: "visuals",     label: "🎨 Visuals",      title: "Visual Studio" },
 ];
 
 export default function BrandKitDisplay({ brandKit }: BrandKitDisplayProps) {
@@ -447,9 +452,18 @@ export default function BrandKitDisplay({ brandKit }: BrandKitDisplayProps) {
   const dayPlan   = mkDayByDay(l);
   const revenue   = mkRevenue(l);
 
+  // ── Visual Studio context ──────────────────────────────────────────────────
+  const brandNamesForVisuals = brandNames.slice(0, 1).map((n) => n.name).join("");
+  const colorsForVisuals = colors
+    .filter((c) => c.hex)
+    .slice(0, 3)
+    .map((c) => `${c.name || c.role} ${c.hex}`)
+    .join(", ");
+  const archetypeForVisuals = mkArchetype(p);
+
   return (
     <Tabs defaultValue="market">
-      <TabsList className="grid grid-cols-3 lg:grid-cols-6 h-auto gap-1 mb-6">
+      <TabsList className="grid grid-cols-4 lg:grid-cols-7 h-auto gap-1 mb-6">
         {TABS.map((t) => (
           <TabsTrigger key={t.id} value={t.id} className="text-xs py-2">
             {t.label}
@@ -906,6 +920,16 @@ export default function BrandKitDisplay({ brandKit }: BrandKitDisplayProps) {
             )) : <p className="text-sm text-muted-foreground italic">—</p>}
           </ul>
         </Section>
+      </TabsContent>
+
+      {/* ── Tab 7: Visual Studio ───────────────────────────────────────────── */}
+      <TabsContent value="visuals" className="space-y-4">
+        <VisualGenerator
+          brandName={brandNamesForVisuals || undefined}
+          brandColors={colorsForVisuals || undefined}
+          brandArchetype={archetypeForVisuals || undefined}
+          productIdea={brandKit.product_idea}
+        />
       </TabsContent>
     </Tabs>
   );
