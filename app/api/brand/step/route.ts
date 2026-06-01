@@ -4,9 +4,9 @@ import { runStep } from "@/lib/langgraph/workflow";
 import { checkActiveSubscription } from "@/lib/stripe/subscriptionCheck";
 import type { BrandKitState } from "@/lib/langgraph/schemas/nodeSchemas";
 
-// Each individual step runs one LLM call — max ~90s even for the longest node.
-// Well within Vercel Pro's 300s function timeout.
-export const maxDuration = 120;
+// Each step is one Opus LLM call — can take up to ~150s. Set 240s to stay
+// well within Vercel Pro's 300s ceiling and avoid mid-generation timeouts.
+export const maxDuration = 240;
 export const runtime     = "nodejs";
 
 export async function POST(req: NextRequest) {
