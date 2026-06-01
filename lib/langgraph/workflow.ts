@@ -19,7 +19,6 @@ const llm = new ChatAnthropic({
   model:       "claude-sonnet-4-6",
   temperature: 0.5,
   maxTokens:   10_000,
-  topP:        1,
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
